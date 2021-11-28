@@ -1,7 +1,8 @@
 use std::str;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Token {
+    EOF,
     LBrace,
     RBrace,
     LParen,
@@ -16,6 +17,7 @@ pub enum Token {
 
 pub fn to_string(tok: Token) -> &'static str {
     match tok {
+        Token::EOF => "\0",
         Token::LBrace => "{",
         Token::RBrace => "}",
         Token::LParen => "(",
