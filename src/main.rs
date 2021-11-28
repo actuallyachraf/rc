@@ -3,7 +3,7 @@ mod token;
 
 fn main() {
     println!("Hello, world!");
-    lex::lex::lex();
-    lex::lex_mod();
+    let tokens = lex::lex::lex(String::from(",=.{"));
+    println!("{:?}", tokens);
     println!("{} ", token::to_string(token::Token::LBrace))
 }

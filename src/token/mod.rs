@@ -1,5 +1,6 @@
 use std::str;
 
+#[derive(Debug)]
 pub enum Token {
     LBrace,
     RBrace,
@@ -9,6 +10,8 @@ pub enum Token {
     SemiColon,
     Colon,
     Dot,
+    Assign,
+    Equal,
 }
 
 pub fn to_string(tok: Token) -> &'static str {
@@ -21,6 +24,8 @@ pub fn to_string(tok: Token) -> &'static str {
         Token::SemiColon => ";",
         Token::Colon => ":",
         Token::Dot => ".",
+        Token::Assign => "=",
+        Token::Equal => "==",
     }
 }
 
@@ -38,5 +43,7 @@ mod tests {
         assert_eq!(";", to_string(Token::SemiColon));
         assert_eq!(":", to_string(Token::Colon));
         assert_eq!(".", to_string(Token::Dot));
+        assert_eq!("=", to_string(Token::Assign));
+        assert_eq!("==", to_string(Token::Equal));
     }
 }
