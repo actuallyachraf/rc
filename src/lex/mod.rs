@@ -70,7 +70,7 @@ impl Lexer {
         }
     }
 
-    pub fn lex(&mut self) {
+    pub fn lex(&mut self) -> Vec<token::Token> {
         for _ in 0..self.chars.len() {
             match self.curr {
                 ',' => self.tokens.push(token::Token::Comma),
@@ -89,10 +89,11 @@ impl Lexer {
                         self.tokens.push(token::Token::Assign)
                     }
                 }
-                _ => return,
+                _ => self.tokens.push(token::Token::EOF),
             }
             self.next_char()
         }
+        self.tokens.clone()
     }
     pub fn tokens(&self) -> Vec<token::Token> {
         self.tokens.clone()
@@ -110,9 +111,9 @@ mod tests {
             token::Token::Dot,
             token::Token::LBrace,
             token::Token::Equal,
+            token::Token::EOF,
         ];
-        let mut lexer = Lexer::new(String::from(",=.{=="));
-        lexer.lex();
-        assert!(expected == lexer.tokens());
+        let tokens = Lexer::new(String::from(",=.{==")).lex();
+        assert_eq!(tokens, expected);
     }
 }
