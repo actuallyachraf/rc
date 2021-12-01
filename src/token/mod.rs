@@ -1,6 +1,4 @@
-use std::str;
-
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     EOF,
     LBrace,
@@ -35,43 +33,45 @@ pub enum Token {
     Mod,
     Return,
     Void,
+    Ident(String),
 }
 
-pub fn to_string(tok: Token) -> &'static str {
+pub fn to_string(tok: Token) -> String {
     match tok {
-        Token::EOF => "\0",
-        Token::LBrace => "{",
-        Token::RBrace => "}",
-        Token::LParen => "(",
-        Token::RParen => ")",
-        Token::Comma => ",",
-        Token::SemiColon => ";",
-        Token::Colon => ":",
-        Token::Dot => ".",
-        Token::Assign => "=",
-        Token::Equal => "==",
-        Token::Neq => "!=",
-        Token::Gt => ">",
-        Token::Lt => "<",
-        Token::Gte => ">=",
-        Token::Lte => "<=",
-        Token::And => "&&",
-        Token::Or => "||",
-        Token::BitAnd => "&",
-        Token::BitOr => "|",
-        Token::Xor => "^",
-        Token::Shl => "<<",
-        Token::Shr => ">>",
-        Token::Bang => "!",
-        Token::Complement => "~",
-        Token::Question => "?",
-        Token::Plus => "+",
-        Token::Minus => "-",
-        Token::Star => "*",
-        Token::Div => "/",
-        Token::Mod => "%",
-        Token::Return => "RETURN",
-        Token::Void => "VOID",
+        Token::EOF => String::from("\0"),
+        Token::LBrace => String::from("{"),
+        Token::RBrace => String::from("}"),
+        Token::LParen => String::from("("),
+        Token::RParen => String::from(")"),
+        Token::Comma => String::from(","),
+        Token::SemiColon => String::from(";"),
+        Token::Colon => String::from(":"),
+        Token::Dot => String::from("."),
+        Token::Assign => String::from("="),
+        Token::Equal => String::from("=="),
+        Token::Neq => String::from("!="),
+        Token::Gt => String::from(">"),
+        Token::Lt => String::from("<"),
+        Token::Gte => String::from(">="),
+        Token::Lte => String::from("<="),
+        Token::And => String::from("&&"),
+        Token::Or => String::from("||"),
+        Token::BitAnd => String::from("&"),
+        Token::BitOr => String::from("|"),
+        Token::Xor => String::from("^"),
+        Token::Shl => String::from("<<"),
+        Token::Shr => String::from(">>"),
+        Token::Bang => String::from("!"),
+        Token::Complement => String::from("~"),
+        Token::Question => String::from("?"),
+        Token::Plus => String::from("+"),
+        Token::Minus => String::from("-"),
+        Token::Star => String::from("*"),
+        Token::Div => String::from("/"),
+        Token::Mod => String::from("%"),
+        Token::Return => String::from("RETURN"),
+        Token::Void => String::from("VOID"),
+        Token::Ident(s) => format!("IDENT<{}>", s),
     }
 }
 
@@ -91,5 +91,28 @@ mod tests {
         assert_eq!(".", to_string(Token::Dot));
         assert_eq!("=", to_string(Token::Assign));
         assert_eq!("==", to_string(Token::Equal));
+        assert_eq!("!=", to_string(Token::Neq));
+        assert_eq!(">", to_string(Token::Gt));
+        assert_eq!(">=", to_string(Token::Gte));
+        assert_eq!("<", to_string(Token::Lt));
+        assert_eq!("<=", to_string(Token::Lte));
+        assert_eq!("&&", to_string(Token::And));
+        assert_eq!("||", to_string(Token::Or));
+        assert_eq!("&", to_string(Token::BitAnd));
+        assert_eq!("|", to_string(Token::BitOr));
+        assert_eq!("^", to_string(Token::Xor));
+        assert_eq!("<<", to_string(Token::Shl));
+        assert_eq!(">>", to_string(Token::Shr));
+        assert_eq!("!", to_string(Token::Bang));
+        assert_eq!("~", to_string(Token::Complement));
+        assert_eq!("?", to_string(Token::Question));
+        assert_eq!("+", to_string(Token::Plus));
+        assert_eq!("-", to_string(Token::Minus));
+        assert_eq!("*", to_string(Token::Star));
+        assert_eq!("/", to_string(Token::Div));
+        assert_eq!("%", to_string(Token::Mod));
+        assert_eq!("RETURN", to_string(Token::Return));
+        assert_eq!("VOID", to_string(Token::Void));
+        assert_eq!("IDENT<Rust>", to_string(Token::Ident(String::from("Rust"))));
     }
 }

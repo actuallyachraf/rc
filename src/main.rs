@@ -3,7 +3,6 @@ mod token;
 
 fn main() {
     println!("Hello, world!");
-    let mut lexer = lex::Lexer::new(String::from(",=.{==="));
-    lexer.lex();
-    println!("{:?}", lexer.tokens());
+    let tokens = lex::Lexer::new(String::from(",=.{===")).lex();
+    println!("{:?}", tokens);
 }

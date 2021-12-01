@@ -1,4 +1,6 @@
 use crate::token;
+extern crate regex;
+use regex::Regex;
 
 #[allow(dead_code)]
 pub struct Lexer {
@@ -29,13 +31,14 @@ impl Lexer {
             read_pos,
             tokens,
         };
-        l.next_char();
+        l.advance();
         l
     }
-    pub fn next_char(&mut self) {
+    pub fn advance(&mut self) {
         if self.read_pos >= self.input.len() {
             // signal EOF
-            self.curr = '0';
+            self.curr = '\0';
+            return;
         } else {
             self.curr = self.chars[self.read_pos];
         }
@@ -48,6 +51,11 @@ impl Lexer {
         }
         self.chars[self.read_pos]
     }
+    pub fn scan(&mut self, ident: String) -> bool {
+        // scan an identifier
+        let number_re = Regex::new(r"^([\d])+$").unwrap();
+        number_re.is_match(ident.as_str())
+    }
     pub fn next(&mut self) -> token::Token {
         match self.curr {
             ',' => token::Token::Comma,
@@ -58,40 +66,87 @@ impl Lexer {
             ')' => token::Token::RParen,
             '}' => token::Token::RBrace,
             '{' => token::Token::LBrace,
+            '^' => token::Token::Xor,
+            '~' => token::Token::Complement,
+            '?' => token::Token::Question,
+            '+' => token::Token::Plus,
+            '-' => token::Token::Minus,
+            '*' => token::Token::Star,
+            '/' => token::Token::Div,
+            '%' => token::Token::Mod,
+            '&' => {
+                if self.peek() == '&' {
+                    self.advance();
+                    token::Token::And
+                } else {
+                    token::Token::BitAnd
+                }
+            }
+            '|' => {
+                if self.peek() == '|' {
+                    self.advance();
+                    token::Token::Or
+                } else {
+                    token::Token::BitOr
+                }
+            }
+            '>' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    token::Token::Gte
+                } else if self.peek() == '>' {
+                    self.advance();
+                    token::Token::Shr
+                } else {
+                    token::Token::Gt
+                }
+            }
+            '<' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    token::Token::Lte
+                } else if self.peek() == '<' {
+                    self.advance();
+                    token::Token::Shl
+                } else {
+                    token::Token::Lt
+                }
+            }
+            '!' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    token::Token::Neq
+                } else {
+                    token::Token::Bang
+                }
+            }
             '=' => {
                 if self.peek() == '=' {
-                    self.next_char();
+                    self.advance();
                     token::Token::Equal
                 } else {
                     token::Token::Assign
                 }
+            }
+            'a'..='z' | 'A'..='Z' => token::Token::Ident("IDENTIFIER<>".to_owned()),
+            '0'..='9' => {
+                let mut digit = Vec::new();
+                while self.curr.is_ascii_digit() {
+                    digit.push(self.curr);
+                    self.advance()
+                }
+                let number: String = digit.into_iter().collect();
+                token::Token::Ident(number)
             }
             _ => token::Token::EOF,
         }
     }
 
     pub fn lex(&mut self) -> Vec<token::Token> {
-        for _ in 0..self.chars.len() {
-            match self.curr {
-                ',' => self.tokens.push(token::Token::Comma),
-                ';' => self.tokens.push(token::Token::SemiColon),
-                ':' => self.tokens.push(token::Token::Colon),
-                '.' => self.tokens.push(token::Token::Dot),
-                '(' => self.tokens.push(token::Token::LParen),
-                ')' => self.tokens.push(token::Token::RParen),
-                '}' => self.tokens.push(token::Token::RBrace),
-                '{' => self.tokens.push(token::Token::LBrace),
-                '=' => {
-                    if self.peek() == '=' {
-                        self.tokens.push(token::Token::Equal);
-                        self.next_char();
-                    } else {
-                        self.tokens.push(token::Token::Assign)
-                    }
-                }
-                _ => self.tokens.push(token::Token::EOF),
-            }
-            self.next_char()
+        while self.curr != '\0' {
+            let token = self.next();
+            self.tokens.push(token);
+            self.advance();
         }
         self.tokens.clone()
     }
@@ -111,9 +166,9 @@ mod tests {
             token::Token::Dot,
             token::Token::LBrace,
             token::Token::Equal,
-            token::Token::EOF,
+            token::Token::Ident(String::from("123")),
         ];
-        let tokens = Lexer::new(String::from(",=.{==")).lex();
+        let tokens = Lexer::new(String::from(",=.{==123")).lex();
         assert_eq!(tokens, expected);
     }
 }
