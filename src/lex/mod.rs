@@ -56,20 +56,21 @@ impl Lexer {
         // let number_re = Regex::new(r"^([\d])+$").unwrap();
         // number_re.is_match(ident.as_str());
         let mut ident = String::new();
-        while self.curr.is_ascii_alphanumeric() {
-            ident.push(self.curr);
-            self.advance();
-        }
-        ident
-    }
-    pub fn scan_number(&mut self) -> String {
-        let mut ident = String::new();
-        while self.peek().is_ascii_digit() {
+        while self.peek().is_ascii_alphanumeric() {
             ident.push(self.curr);
             self.advance();
         }
         ident.push(self.curr);
         ident
+    }
+    pub fn scan_number(&mut self) -> String {
+        let mut number = String::new();
+        while self.peek().is_ascii_digit() {
+            number.push(self.curr);
+            self.advance();
+        }
+        number.push(self.curr);
+        number
     }
     pub fn skip_whitespace(&mut self) {
         while self.curr.is_ascii_whitespace() {
@@ -154,16 +155,12 @@ impl Lexer {
                 match ident.as_str() {
                     "return" => token::Token::Return,
                     "void" => token::Token::Void,
-                    _ => {
-                        let tag = format!("IDENTIFIER<{}>", ident);
-                        token::Token::Ident(tag)
-                    }
+                    "int" => token::Token::CInt,
+                    _ => token::Token::Ident(ident),
                 }
             }
             '0'..='9' => {
                 let number = self.scan_number();
-                println!("NUMBER : {}", number);
-                println!("CURRENT : {}", self.curr);
                 token::Token::Int(number.parse::<i64>().unwrap())
             }
             _ => token::Token::EOF,
@@ -196,6 +193,34 @@ mod tests {
             token::Token::RBrace,
         ];
         let tokens = Lexer::new(String::from("{return 42;}")).lex();
+        assert_eq!(tokens, expected);
+    }
+    #[test]
+    fn test_lexer_ident() {
+        let expected = vec![
+            token::Token::LBrace,
+            token::Token::Return,
+            token::Token::Ident("hello".to_string()),
+            token::Token::SemiColon,
+            token::Token::RBrace,
+        ];
+        let tokens = Lexer::new(String::from("{return hello;}")).lex();
+        assert_eq!(tokens, expected);
+    }
+    #[test]
+    fn test_lexer_complete() {
+        let expected = vec![
+            token::Token::CInt,
+            token::Token::Ident("main".to_string()),
+            token::Token::LParen,
+            token::Token::RParen,
+            token::Token::LBrace,
+            token::Token::Return,
+            token::Token::Int(42),
+            token::Token::SemiColon,
+            token::Token::RBrace,
+        ];
+        let tokens = Lexer::new(String::from("int main() {return 42;}")).lex();
         assert_eq!(tokens, expected);
     }
 }

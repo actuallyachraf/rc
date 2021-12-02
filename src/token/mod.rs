@@ -36,6 +36,8 @@ pub enum Token {
     Ident(String),
     Int(i64),
     Char(char),
+    CInt,
+    CChar,
 }
 
 pub fn to_string(tok: Token) -> String {
@@ -76,6 +78,8 @@ pub fn to_string(tok: Token) -> String {
         Token::Ident(s) => format!("IDENT<{}>", s),
         Token::Int(x) => format!("INT<{}>", x),
         Token::Char(c) => format!("CHAR<{}>", c),
+        Token::CInt => String::from("CINT"),
+        Token::CChar => String::from("CCHAR"),
     }
 }
 
@@ -120,5 +124,7 @@ mod tests {
         assert_eq!("IDENT<a>", to_string(Token::Ident(String::from("a"))));
         assert_eq!("INT<5>", to_string(Token::Int(5)));
         assert_eq!("CHAR<b>", to_string(Token::Char('b')));
+        assert_eq!("CINT", to_string(Token::CInt));
+        assert_eq!("CCHAR", to_string(Token::CChar));
     }
 }
