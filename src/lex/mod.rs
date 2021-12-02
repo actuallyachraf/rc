@@ -1,6 +1,5 @@
 use crate::token;
 extern crate regex;
-use regex::Regex;
 
 #[allow(dead_code)]
 pub struct Lexer {
@@ -51,12 +50,34 @@ impl Lexer {
         }
         self.chars[self.read_pos]
     }
-    pub fn scan(&mut self, ident: String) -> bool {
+    pub fn scan_identifier(&mut self) -> String {
         // scan an identifier
-        let number_re = Regex::new(r"^([\d])+$").unwrap();
-        number_re.is_match(ident.as_str())
+        // let ident = Regex::new(r"/[a-zA-Z_][a-zA-Z0-9]*/gm").unwrap();
+        // let number_re = Regex::new(r"^([\d])+$").unwrap();
+        // number_re.is_match(ident.as_str());
+        let mut ident = String::new();
+        while self.curr.is_ascii_alphanumeric() {
+            ident.push(self.curr);
+            self.advance();
+        }
+        ident
+    }
+    pub fn scan_number(&mut self) -> String {
+        let mut ident = String::new();
+        while self.peek().is_ascii_digit() {
+            ident.push(self.curr);
+            self.advance();
+        }
+        ident.push(self.curr);
+        ident
+    }
+    pub fn skip_whitespace(&mut self) {
+        while self.curr.is_ascii_whitespace() {
+            self.advance()
+        }
     }
     pub fn next(&mut self) -> token::Token {
+        self.skip_whitespace();
         match self.curr {
             ',' => token::Token::Comma,
             ';' => token::Token::SemiColon,
@@ -128,15 +149,22 @@ impl Lexer {
                     token::Token::Assign
                 }
             }
-            'a'..='z' | 'A'..='Z' => token::Token::Ident("IDENTIFIER<>".to_owned()),
-            '0'..='9' => {
-                let mut digit = Vec::new();
-                while self.curr.is_ascii_digit() {
-                    digit.push(self.curr);
-                    self.advance()
+            'a'..='z' | 'A'..='Z' => {
+                let ident = self.scan_identifier();
+                match ident.as_str() {
+                    "return" => token::Token::Return,
+                    "void" => token::Token::Void,
+                    _ => {
+                        let tag = format!("IDENTIFIER<{}>", ident);
+                        token::Token::Ident(tag)
+                    }
                 }
-                let number: String = digit.into_iter().collect();
-                token::Token::Ident(number)
+            }
+            '0'..='9' => {
+                let number = self.scan_number();
+                println!("NUMBER : {}", number);
+                println!("CURRENT : {}", self.curr);
+                token::Token::Int(number.parse::<i64>().unwrap())
             }
             _ => token::Token::EOF,
         }
@@ -161,14 +189,13 @@ mod tests {
     #[test]
     fn test_lexer() {
         let expected = vec![
-            token::Token::Comma,
-            token::Token::Assign,
-            token::Token::Dot,
             token::Token::LBrace,
-            token::Token::Equal,
-            token::Token::Ident(String::from("123")),
+            token::Token::Return,
+            token::Token::Int(42),
+            token::Token::SemiColon,
+            token::Token::RBrace,
         ];
-        let tokens = Lexer::new(String::from(",=.{==123")).lex();
+        let tokens = Lexer::new(String::from("{return 42;}")).lex();
         assert_eq!(tokens, expected);
     }
 }

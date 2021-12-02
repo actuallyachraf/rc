@@ -34,6 +34,8 @@ pub enum Token {
     Return,
     Void,
     Ident(String),
+    Int(i64),
+    Char(char),
 }
 
 pub fn to_string(tok: Token) -> String {
@@ -72,6 +74,8 @@ pub fn to_string(tok: Token) -> String {
         Token::Return => String::from("RETURN"),
         Token::Void => String::from("VOID"),
         Token::Ident(s) => format!("IDENT<{}>", s),
+        Token::Int(x) => format!("INT<{}>", x),
+        Token::Char(c) => format!("CHAR<{}>", c),
     }
 }
 
@@ -113,6 +117,8 @@ mod tests {
         assert_eq!("%", to_string(Token::Mod));
         assert_eq!("RETURN", to_string(Token::Return));
         assert_eq!("VOID", to_string(Token::Void));
-        assert_eq!("IDENT<Rust>", to_string(Token::Ident(String::from("Rust"))));
+        assert_eq!("IDENT<a>", to_string(Token::Ident(String::from("a"))));
+        assert_eq!("INT<5>", to_string(Token::Int(5)));
+        assert_eq!("CHAR<b>", to_string(Token::Char('b')));
     }
 }
