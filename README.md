@@ -4,7 +4,7 @@ The Rustic C Compiler is an incremental compiler for C99 in Rust.
 
 ## What
 
-This is a project to learn [_rust_](https://rust-lang.com) and is currently a work in progress.
+This is a project to learn [_rust_](https://rust-lang.org) and is currently a work in progress.
 The compiler is built incrementally following the ideas in [Ghouloum - Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf), while borrowing some ideas from other places.
 
 ## Why
