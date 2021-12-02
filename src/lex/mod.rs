@@ -184,7 +184,7 @@ impl Lexer {
 mod tests {
     use super::*;
     #[test]
-    fn test_lexer() {
+    fn test_lex_statement() {
         let expected = vec![
             token::Token::LBrace,
             token::Token::Return,
@@ -196,7 +196,7 @@ mod tests {
         assert_eq!(tokens, expected);
     }
     #[test]
-    fn test_lexer_ident() {
+    fn test_lex_identifier() {
         let expected = vec![
             token::Token::LBrace,
             token::Token::Return,
@@ -208,7 +208,7 @@ mod tests {
         assert_eq!(tokens, expected);
     }
     #[test]
-    fn test_lexer_complete() {
+    fn test_lex_function() {
         let expected = vec![
             token::Token::CInt,
             token::Token::Ident("main".to_string()),
@@ -222,5 +222,45 @@ mod tests {
         ];
         let tokens = Lexer::new(String::from("int main() {return 42;}")).lex();
         assert_eq!(tokens, expected);
+    }
+    #[test]
+    fn test_lex_function_call() {
+        let expected = vec![
+            token::Token::CInt,
+            token::Token::Ident("func".to_string()),
+            token::Token::LParen,
+            token::Token::CInt,
+            token::Token::Ident("a".to_string()),
+            token::Token::Comma,
+            token::Token::CInt,
+            token::Token::Ident("b".to_string()),
+            token::Token::RParen,
+            token::Token::LBrace,
+            token::Token::Return,
+            token::Token::Ident("a".to_string()),
+            token::Token::Plus,
+            token::Token::Ident("b".to_string()),
+            token::Token::SemiColon,
+            token::Token::RBrace,
+            token::Token::CInt,
+            token::Token::Ident("main".to_string()),
+            token::Token::LParen,
+            token::Token::RParen,
+            token::Token::LBrace,
+            token::Token::Return,
+            token::Token::Ident("func".to_string()),
+            token::Token::LParen,
+            token::Token::Int(5),
+            token::Token::Comma,
+            token::Token::Int(3),
+            token::Token::RParen,
+            token::Token::SemiColon,
+            token::Token::RBrace,
+        ];
+        let tokens = Lexer::new(String::from(
+            "int func(int a, int b){ return a + b ; } int main() { return func(5,3); }",
+        ))
+        .lex();
+        assert_eq!(tokens, expected)
     }
 }
