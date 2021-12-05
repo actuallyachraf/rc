@@ -1,23 +1,19 @@
 use crate::token;
 extern crate regex;
 
-#[allow(dead_code)]
 pub struct Lexer {
     input: String,
     chars: Vec<char>,
     curr: char,
-    next: char,
     pos: usize,
     read_pos: usize,
     tokens: Vec<token::Token>,
 }
 
-#[allow(dead_code)]
 impl Lexer {
     pub fn new(input: String) -> Lexer {
         let chars: Vec<char> = input.chars().collect();
         let curr = '0';
-        let next = '0';
         let read_pos = 0;
         let pos = 0;
         let tokens = Vec::<token::Token>::new();
@@ -25,7 +21,6 @@ impl Lexer {
             input,
             chars,
             curr,
-            next,
             pos,
             read_pos,
             tokens,
@@ -33,7 +28,7 @@ impl Lexer {
         l.advance();
         l
     }
-    pub fn advance(&mut self) {
+    fn advance(&mut self) {
         if self.read_pos >= self.input.len() {
             // signal EOF
             self.curr = '\0';
@@ -44,13 +39,13 @@ impl Lexer {
         self.pos = self.read_pos;
         self.read_pos += 1;
     }
-    pub fn peek(&mut self) -> char {
+    fn peek(&mut self) -> char {
         if self.read_pos >= self.input.len() {
             return 0 as char;
         }
         self.chars[self.read_pos]
     }
-    pub fn scan_identifier(&mut self) -> String {
+    fn scan_identifier(&mut self) -> String {
         // scan an identifier
         // let ident = Regex::new(r"/[a-zA-Z_][a-zA-Z0-9]*/gm").unwrap();
         // let number_re = Regex::new(r"^([\d])+$").unwrap();
@@ -63,7 +58,7 @@ impl Lexer {
         ident.push(self.curr);
         ident
     }
-    pub fn scan_number(&mut self) -> String {
+    fn scan_number(&mut self) -> String {
         let mut number = String::new();
         while self.peek().is_ascii_digit() {
             number.push(self.curr);
@@ -72,7 +67,7 @@ impl Lexer {
         number.push(self.curr);
         number
     }
-    pub fn skip_whitespace(&mut self) {
+    fn skip_whitespace(&mut self) {
         while self.curr.is_ascii_whitespace() {
             self.advance()
         }

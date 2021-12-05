@@ -62,13 +62,14 @@ impl Parser {
         let mut value: i64 = 0;
         let tokens = self.lexer.tokens();
         let mut iter = tokens.iter();
-
         self.curr = iter.next().unwrap().clone();
         self.next = iter.next().unwrap().clone();
 
-        if self.curr == token::Token::CInt {
-            ctype = kind::Kind::Int;
-        };
+        match &self.curr {
+            token::Token::CInt => ctype = kind::Kind::Int,
+            token::Token::CChar => ctype = kind::Kind::Char,
+            _ => ctype= kind::Kind::Void,
+        }
         match &self.next {
             token::Token::Ident(s) => {
                 name = Ident {
