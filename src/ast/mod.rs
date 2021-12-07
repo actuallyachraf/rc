@@ -51,7 +51,6 @@ pub struct Prog {
 }
 
 pub struct Parser {
-    lexer: lex::Lexer,
     tokens:Vec<token::Token>,
     curr: token::Token,
     next: token::Token,
@@ -59,13 +58,12 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(input: String) -> Parser {
-        let mut lexer = lex::Lexer::new(input);
-        let tokens = lexer.lex();
+    pub fn new(input: Vec<token::Token>) -> Parser {
+        let tokens = input.clone();
         let curr = tokens[0].clone();
         let next = tokens[1].clone();
         let pos = 1 as usize;
-        Parser { lexer, tokens,curr, next , pos }
+        Parser { tokens,curr, next , pos }
     }
     fn next(&mut self) {
         if self.pos+1 >= self.tokens.len() {
@@ -111,7 +109,7 @@ impl Parser {
             val: "a".to_string(),
         };
         let mut value: i64 = 0;
-        let tokens = self.lexer.tokens();
+        let tokens = &self.tokens;
         let mut iter = tokens.iter();
         self.curr = iter.next().unwrap().clone();
         self.next = iter.next().unwrap().clone();
@@ -169,6 +167,10 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn prepare(input:String) -> Vec<token::Token> {
+        let mut lexer = lex::Lexer::new(input);
+        lexer.lex()
+    }
     #[test]
     pub fn test_parse_declaration() {
         let expected = Statement {
@@ -179,7 +181,7 @@ mod tests {
             },
             value: 2019,
         };
-        let input = "int year=2019;".to_string();
+        let input = prepare("int year=2019;".to_string());
         let mut parser = Parser::new(input);
         let decl = parser.parse_declaration();
         println!("{:?}", decl);
@@ -195,7 +197,7 @@ mod tests {
             },
             value: 12345,
         };
-        let input = "int id = 12345;".to_string();
+        let input = prepare("int id = 12345;".to_string());
         let mut parser = Parser::new(input);
         let decl = parser.parse_declaration();
         println!("{:?}", decl);
@@ -207,7 +209,7 @@ mod tests {
             tok:token::Token::Return,
             val:42,
         };
-        let input = "return 42;".to_string();
+        let input = prepare("return 42;".to_string());
         let mut parser = Parser::new(input);
         let decl = parser.parse_statement();
         println!("{:?}", decl);
