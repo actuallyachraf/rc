@@ -1,6 +1,7 @@
 use crate::lex;
 use crate::token;
 pub mod kind;
+pub mod parser;
 
 pub enum BinOp {
     Add,
@@ -65,7 +66,7 @@ impl Parser {
         let pos = 1 as usize;
         Parser { tokens,curr, next , pos }
     }
-    fn next(&mut self) {
+    fn advance(&mut self) {
         if self.pos+1 >= self.tokens.len() {
             return
         }
@@ -97,7 +98,7 @@ impl Parser {
             _ => statement.val = 0,
         }
         while self.next != token::Token::SemiColon {
-            self.next()
+            self.advance()
         }
         statement
     }

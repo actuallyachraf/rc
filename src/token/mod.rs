@@ -39,7 +39,6 @@ pub enum Token {
     CInt,
     CChar,
 }
-
 pub fn to_string(tok: Token) -> String {
     match tok {
         Token::EOF => String::from("\0"),
