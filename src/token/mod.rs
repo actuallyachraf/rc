@@ -1,6 +1,6 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug,Clone, PartialEq)]
 pub enum Token {
-    EOF,
+    Eof,
     LBrace,
     RBrace,
     LParen,
@@ -41,7 +41,7 @@ pub enum Token {
 }
 pub fn to_string(tok: Token) -> String {
     match tok {
-        Token::EOF => String::from("\0"),
+        Token::Eof => String::from("\0"),
         Token::LBrace => String::from("{"),
         Token::RBrace => String::from("}"),
         Token::LParen => String::from("("),

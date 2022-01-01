@@ -158,7 +158,7 @@ impl Lexer {
                 let number = self.scan_number();
                 token::Token::Int(number.parse::<i64>().unwrap())
             }
-            _ => token::Token::EOF,
+            _ => token::Token::Eof,
         }
     }
 

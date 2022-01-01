@@ -1,8 +1,18 @@
-use crate::lex;
 use crate::token;
 pub mod kind;
-pub mod parser;
-
+// Recursive Descent or Pratt Parsing are both candidates for the parser
+// implementation.
+// Design note :
+// Our parser should consume tokens (instead of storing lex) this would
+// alleviate some ownership issues.
+//
+// ```rust
+// let tokens = lexer::new("int main(){ return 42; }").lex();
+// let ast = parser::new(tokens.clone());
+// ```
+// Our parser when initated should keep a mutable iterator on Vec<Token>.
+// next() -> returns the next token and move the iterator
+// peek() -> returns the next token without moving the iterator
 pub enum BinOp {
     Add,
     Sub,
@@ -60,11 +70,9 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(input: Vec<token::Token>) -> Parser {
-        let tokens = input.clone();
-        let curr = tokens[0].clone();
-        let next = tokens[1].clone();
-        let pos = 1 as usize;
-        Parser { tokens,curr, next , pos }
+        let curr = input[0].clone();
+        let next = input[1].clone();
+        Parser { tokens:input,curr, next , pos : 1}
     }
     fn advance(&mut self) {
         if self.pos+1 >= self.tokens.len() {
@@ -168,6 +176,7 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lex;
     fn prepare(input:String) -> Vec<token::Token> {
         let mut lexer = lex::Lexer::new(input);
         lexer.lex()
