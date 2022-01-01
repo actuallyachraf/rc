@@ -46,15 +46,15 @@ pub struct Statement {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ForStatement {
-    init:Expression,
-    cond:Expression,
-    update:Expression,
-    body:Vec<Statement>,
+    init: Expression,
+    cond: Expression,
+    update: Expression,
+    body: Vec<Statement>,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnStatement {
-    tok:token::Token,
-    val:i64,
+    tok: token::Token,
+    val: i64,
 }
 
 pub struct Prog {
@@ -62,25 +62,30 @@ pub struct Prog {
 }
 
 pub struct Parser {
-    tokens:Vec<token::Token>,
+    tokens: Vec<token::Token>,
     curr: token::Token,
     next: token::Token,
-    pos:usize,
+    pos: usize,
 }
 
 impl Parser {
     pub fn new(input: Vec<token::Token>) -> Parser {
         let curr = input[0].clone();
         let next = input[1].clone();
-        Parser { tokens:input,curr, next , pos : 1}
+        Parser {
+            tokens: input,
+            curr,
+            next,
+            pos: 1,
+        }
     }
     fn advance(&mut self) {
-        if self.pos+1 >= self.tokens.len() {
-            return
+        if self.pos + 1 >= self.tokens.len() {
+            return;
         }
         self.curr = self.tokens[self.pos].clone();
-        self.next = self.tokens[self.pos+1].clone();
-        self.pos+=1;
+        self.next = self.tokens[self.pos + 1].clone();
+        self.pos += 1;
     }
     pub fn parse(&mut self) -> Prog {
         Prog {
@@ -90,16 +95,16 @@ impl Parser {
     pub fn parse_statement(&mut self) -> ReturnStatement {
         match &self.curr {
             token::Token::Return => self.parse_ret_statement(),
-            _ => ReturnStatement{
-                tok:token::Token::Return,
-                val:0,
+            _ => ReturnStatement {
+                tok: token::Token::Return,
+                val: 0,
             },
         }
     }
     pub fn parse_ret_statement(&mut self) -> ReturnStatement {
         let mut statement = ReturnStatement {
-            tok:self.curr.clone(),
-            val:0,
+            tok: self.curr.clone(),
+            val: 0,
         };
         match &self.next {
             token::Token::Int(k) => statement.val = *k,
@@ -110,56 +115,50 @@ impl Parser {
         }
         statement
     }
+    pub fn match_kind(tok: &token::Token) -> kind::Kind {
+        match tok {
+            token::Token::CInt => kind::Kind::Int,
+            token::Token::CChar => kind::Kind::Char,
+            _ => kind::Kind::Void,
+        }
+    }
     pub fn parse_declaration(&mut self) -> Statement {
         // TODO: Handle Function Declarations
-        let mut ctype: kind::Kind = kind::Kind::Void;
-        let mut name: Ident = Ident {
-            tok: token::Token::Ident("a".to_string()),
-            val: "a".to_string(),
-        };
-        let mut value: i64 = 0;
         let tokens = &self.tokens;
         let mut iter = tokens.iter();
+
         self.curr = iter.next().unwrap().clone();
         self.next = iter.next().unwrap().clone();
 
-        match &self.curr {
-            token::Token::CInt => ctype = kind::Kind::Int,
-            token::Token::CChar => ctype = kind::Kind::Char,
-            _ => ctype= kind::Kind::Void,
-        }
-        match &self.next {
-            token::Token::Ident(s) => {
-                name = Ident {
-                    tok: token::Token::Ident(s.to_string()),
-                    val: s.clone(),
-                }
-            }
-            _ => println!("ERROR"),
-        }
-        self.curr = iter.next().unwrap().clone();
-        self.next = iter.next().unwrap().clone();
+        let ctype = Parser::match_kind(&self.curr);
 
-        match &self.curr {
-            token::Token::Assign => match &self.next {
-                token::Token::Int(k) => {
-                    value = *k;
-                }
-                _ => println!("ERROR"),
+        let name = match &self.next {
+            token::Token::Ident(s) => Ident {
+                tok: token::Token::Ident(s.to_string()),
+                val: s.clone(),
             },
-            _ => println!("ERROR"),
-        }
+            _ => Ident {
+                tok: token::Token::Ident(String::new()),
+                val: String::new(),
+            },
+        };
+        self.curr = iter.next().unwrap().clone();
+        self.next = iter.next().unwrap().clone();
+
+        let value = match &self.curr {
+            token::Token::Assign => match &self.next {
+                token::Token::Int(k) => *k,
+                _ => 0,
+            },
+            _ => 0,
+        };
         Statement { ctype, name, value }
     }
     pub fn parse_expression(&mut self) -> Expression {
         // TODO: Parse expressions using RD or Pratt
         match &self.curr {
-            token::Token::Equal => {
-                Expression::Equality
-            }
-            _ => {
-                Expression::Unary
-            }
+            token::Token::Equal => Expression::Equality,
+            _ => Expression::Unary,
         }
     }
     // TODO: Parse for statements
@@ -177,7 +176,7 @@ impl Parser {
 mod tests {
     use super::*;
     use crate::lex;
-    fn prepare(input:String) -> Vec<token::Token> {
+    fn prepare(input: String) -> Vec<token::Token> {
         let mut lexer = lex::Lexer::new(input);
         lexer.lex()
     }
@@ -216,8 +215,8 @@ mod tests {
     #[test]
     pub fn test_parse_return() {
         let expected = ReturnStatement {
-            tok:token::Token::Return,
-            val:42,
+            tok: token::Token::Return,
+            val: 42,
         };
         let input = prepare("return 42;".to_string());
         let mut parser = Parser::new(input);
